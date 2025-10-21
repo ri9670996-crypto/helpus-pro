@@ -1,0 +1,22 @@
+# ===== Backend =====
+FROM node:16 AS backend
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm install
+COPY backend ./
+EXPOSE 5000
+CMD ["node", "server.js"]
+
+# ===== Frontend =====
+FROM node:16 AS frontend
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend ./
+RUN npm run build
+
+# ===== Nginx =====
+FROM nginx:alpine
+COPY --from=frontend /app/frontend/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
